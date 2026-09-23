@@ -10,6 +10,7 @@ function esc(value: string): string {
 }
 
 export function buildVCard(person: Person): string {
+  const address = company.address;
   const lines = [
     "BEGIN:VCARD",
     "VERSION:3.0",
@@ -17,6 +18,7 @@ export function buildVCard(person: Person): string {
     `FN:${esc(person.displayName)}`,
     `ORG:${esc(company.name)}`,
     `TITLE:${esc(person.role)}`,
+    `ADR;TYPE=WORK:;;${esc(address.street)};${esc(address.city)};${esc(address.region)};${esc(address.postalCode)};${esc(address.country)}`,
   ];
 
   if (person.phone) lines.push(`TEL;TYPE=CELL:${esc(person.phone)}`);
