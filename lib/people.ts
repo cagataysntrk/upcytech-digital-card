@@ -64,9 +64,7 @@ const people: PersonDefinition[] = [
     emailEnv: "UPCY_CONTACT_CAGATAY_EMAIL",
     socials: [
       { kind: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/in/cagataysntrkk" },
-    ],
-    socialEnvs: [
-      { kind: "instagram", label: "Instagram", env: "UPCY_CONTACT_CAGATAY_INSTAGRAM" },
+      { kind: "instagram", label: "Instagram", url: "https://www.instagram.com/cevatcagataysenturk/" },
     ],
   },
   {
