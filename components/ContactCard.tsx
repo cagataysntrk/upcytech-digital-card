@@ -24,11 +24,21 @@ export function ContactCard({ person }: Props) {
     { label: "LinkedIn", detail: "UpcyTech", href: company.linkedin, icon: "in" },
     ...(person.socials ?? []).map((social) => ({
       label: social.label,
-      detail: social.kind === "instagram" ? "Instagram" : social.kind,
+      detail:
+        social.kind === "instagram"
+          ? "Instagram"
+          : social.kind === "linkedin"
+            ? "Kişisel profil"
+            : social.kind === "github"
+              ? "GitHub"
+              : "Web",
       href: social.url,
-      icon: social.kind === "linkedin" ? "in" : social.kind === "instagram" ? "◎" : "↗",
+      icon: social.kind === "linkedin" ? "in" : social.kind === "instagram" ? "◎" : social.kind === "github" ? "⌘" : "↗",
     })),
   ].filter(Boolean) as Array<{ label: string; detail: string; href: string; icon: string }>;
+
+  const showSetupNote =
+    process.env.NODE_ENV !== "production" && (!person.phone || !person.email);
 
   return (
     <main className="page-shell">
@@ -83,9 +93,9 @@ export function ContactCard({ person }: Props) {
           })}
         </div>
 
-        {!person.phone || !person.email ? (
+        {showSetupNote ? (
           <p className="setup-note">
-            Telefon ve e-posta bilgileri yayın ortamında güvenli değişkenlerden eklenir.
+            Geliştirme notu: telefon/e-posta eksik. Production'da bu not gösterilmez.
           </p>
         ) : null}
 
