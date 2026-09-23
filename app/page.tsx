@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { company, listPeople } from "@/lib/people";
 
 export default function Home() {
@@ -6,7 +7,7 @@ export default function Home() {
     <main className="directory-shell">
       <section className="directory-panel">
         <header className="brand-row">
-          <img src="/upcytech-logo.svg" alt="UpcyTech" className="brand-logo" />
+          <BrandLogo />
           <span className="verified-pill">
             <span className="verified-dot" />
             Ekip
