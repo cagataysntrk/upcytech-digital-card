@@ -29,6 +29,42 @@ function pathText(
   anchor: Anchor = "left top",
   letterSpacing = 0,
 ): string {
+  // IPA Gothic handles most Turkish Latin glyphs well, but its ğ/Ğ outline
+  // is not reliable in our server-side SVG pipeline. Compose those two
+  // characters from g/G + a vector breve so exports stay font-independent.
+  if ((text.includes("ğ") || text.includes("Ğ")) && anchor === "left top") {
+    let cursor = x;
+    const parts: string[] = [];
+
+    for (const char of text) {
+      const base = char === "ğ" ? "g" : char === "Ğ" ? "G" : char;
+      parts.push(
+        textToSvg.getPath(base, {
+          x: cursor,
+          y,
+          fontSize,
+          anchor: "left top",
+          letterSpacing,
+          attributes: { fill },
+        }),
+      );
+
+      const width = textWidth(base, fontSize, letterSpacing);
+      if (char === "ğ" || char === "Ğ") {
+        const cx = cursor + width * 0.5;
+        const breveWidth = Math.max(12, fontSize * 0.24);
+        const breveY = y + Math.max(1, fontSize * 0.025);
+        parts.push(
+          `<path d="M ${(cx - breveWidth).toFixed(2)} ${breveY.toFixed(2)} Q ${cx.toFixed(2)} ${(breveY + fontSize * 0.12).toFixed(2)} ${(cx + breveWidth).toFixed(2)} ${breveY.toFixed(2)}" fill="none" stroke="${fill}" stroke-width="${Math.max(3, fontSize * 0.055).toFixed(2)}" stroke-linecap="round"/>`,
+        );
+      }
+
+      cursor += width;
+    }
+
+    return parts.join("");
+  }
+
   return textToSvg.getPath(text, {
     x,
     y,
