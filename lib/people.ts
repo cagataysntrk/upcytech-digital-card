@@ -35,6 +35,7 @@ export const company = {
   name: "UpcyTech",
   website: "https://upcytech.com/tr",
   linkedin: "https://www.linkedin.com/company/upcytech/",
+  instagram: process.env.NEXT_PUBLIC_UPCYTECH_INSTAGRAM?.trim() || undefined,
   location: "İstanbul, Türkiye",
   address: {
     street: "Reşitpaşa Mah. Katar Cad. İTÜ Tasarım ve Prototip Merkezi Binası No: 2/41 İç Kapı No: 19",
