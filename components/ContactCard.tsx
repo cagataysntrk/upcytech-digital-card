@@ -110,12 +110,6 @@ export function ContactCard({ person }: Props) {
 
         <div className="hero-grid">
           <section className="identity-hero">
-            <div className="identity-node" aria-hidden="true">
-              <span className="identity-node-index">01</span>
-              <span className="identity-node-initials">{person.initials}</span>
-              <span className="identity-node-dot" />
-            </div>
-
             <div className="identity-copy">
               <div className="identity-kicker">
                 <span className="status-dot" />
@@ -152,8 +146,8 @@ export function ContactCard({ person }: Props) {
               dima<span>.</span>
             </div>
             <p>
-              Şirket verisini doğal dille sorgulanabilir, kanıta bağlı ve denetlenebilir
-              analize dönüştüren iş analisti.
+              Dima, optimizasyon ve karar masasıdır. Şirketin operasyonel beyni gibi
+              çalışır; veriyi izler, denetler, sapmaları fark eder ve karar için raporlar.
             </p>
             <a href={company.website} target="_blank" rel="noreferrer" className="panel-link">
               UpcyTech&apos;i incele

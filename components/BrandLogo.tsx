@@ -4,9 +4,14 @@ type Props = {
 
 export function BrandLogo({ className = "brand-logo" }: Props) {
   return (
-    <picture className="brand-picture">
-      <source media="(prefers-color-scheme: dark)" srcSet="/upcytech-logo-bluewhite.png" />
-      <img src="/upcytech-logo-black.png" alt="UpcyTech" className={className} />
-    </picture>
+    <span className={`brand-lockup ${className}`} aria-label="UpcyTech">
+      <img
+        src="/upcytech-mark-official.png"
+        alt=""
+        className="brand-mark"
+        aria-hidden="true"
+      />
+      <span className="brand-wordmark">UpcyTech</span>
+    </span>
   );
 }

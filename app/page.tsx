@@ -46,8 +46,8 @@ export default function Home() {
             </div>
             <div className="dima-wordmark">dima<span>.</span></div>
             <p>
-              Denetlenebilir yapay zekâ destekli iş analizi ve karar zekâsı. UpcyTech&apos;in
-              ana ürün katmanı.
+              Optimizasyon ve karar masası. Şirketin operasyonel beyni gibi çalışır;
+              izler, denetler, fark eder ve karar için raporlar.
             </p>
           </aside>
         </section>
@@ -65,7 +65,6 @@ export default function Home() {
             {people.map((person, index) => (
               <Link className="team-row" href={`/${person.slug}`} key={person.slug}>
                 <span className="team-index">{String(index + 1).padStart(2, "0")}</span>
-                <span className="team-monogram">{person.initials}</span>
                 <span className="team-person">
                   <strong>{person.displayName}</strong>
                   <small>{person.role}</small>
