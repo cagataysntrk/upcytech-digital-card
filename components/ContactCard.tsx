@@ -22,6 +22,9 @@ export function ContactCard({ person }: Props) {
       : null,
     { label: "UpcyTech", detail: "Web sitesi", href: company.website, icon: "↗" },
     { label: "LinkedIn", detail: "UpcyTech", href: company.linkedin, icon: "in" },
+    company.instagram
+      ? { label: "Instagram", detail: "UpcyTech", href: company.instagram, icon: "◎" }
+      : null,
     ...(person.socials ?? []).map((social) => ({
       label: social.label,
       detail:
