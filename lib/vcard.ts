@@ -30,6 +30,10 @@ export function buildVCard(person: Person): string {
     `X-SOCIALPROFILE;TYPE=linkedin:${company.linkedin}`,
   );
 
+  if (company.instagram) {
+    lines.push(`X-SOCIALPROFILE;TYPE=instagram:${company.instagram}`);
+  }
+
   for (const social of person.socials ?? []) {
     lines.push(`X-SOCIALPROFILE;TYPE=${social.kind}:${social.url}`);
   }
