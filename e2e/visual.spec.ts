@@ -59,3 +59,34 @@ test("profile keeps identity, actions, contact list and QR in one coherent flow"
     fullPage: true,
   });
 });
+
+
+test("branded QR card is screen-ready and downloadable", async ({ page }, testInfo) => {
+  await page.goto("/qr/cagatay");
+
+  await expect(page.locator(".qr-display-card")).toBeVisible();
+
+  const svgResponse = await page.request.get("/api/qr/cagatay?format=svg");
+  expect(svgResponse.ok()).toBeTruthy();
+  const svg = await svgResponse.text();
+  expect(svg).toContain('width="1080"');
+  expect(svg).toContain('height="1920"');
+  expect(svg).toContain("SCAN TO CONNECT");
+  expect(svg).toContain("card.upcytech.com/cagatay");
+
+  const pngResponse = await page.request.get("/api/qr/cagatay?format=png");
+  expect(pngResponse.ok()).toBeTruthy();
+  expect(pngResponse.headers()["content-type"]).toContain("image/png");
+  expect((await pngResponse.body()).byteLength).toBeGreaterThan(40_000);
+
+  const overflow = await page.evaluate(() => ({
+    scroll: document.documentElement.scrollWidth,
+    client: document.documentElement.clientWidth,
+  }));
+  expect(overflow.scroll).toBeLessThanOrEqual(overflow.client);
+
+  await page.screenshot({
+    path: `${output}/qr-card-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+});

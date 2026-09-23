@@ -1,23 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import QRCode from "qrcode";
+import sharp from "sharp";
 import { getPerson } from "@/lib/people";
 import { getProfileUrl } from "@/lib/site-url";
+import {
+  buildBrandedQrSvg,
+  buildRawQrPng,
+  buildRawQrSvg,
+} from "@/lib/qr-card";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
-};
-
-const qrOptions = {
-  errorCorrectionLevel: "H" as const,
-  margin: 4,
-  width: 1200,
-  color: {
-    dark: "#07111f",
-    light: "#ffffff",
-  },
 };
 
 export async function GET(request: NextRequest, { params }: RouteContext) {
@@ -30,14 +25,18 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
   const format = request.nextUrl.searchParams.get("format") === "png" ? "png" : "svg";
   const download = request.nextUrl.searchParams.get("download") === "1";
+  const variant = request.nextUrl.searchParams.get("variant") === "raw" ? "raw" : "card";
   const profileUrl = getProfileUrl(person.slug);
-  const filename = `upcytech-${person.slug}-qr.${format}`;
+  const suffix = variant === "raw" ? "qr" : "digital-id";
+  const filename = `upcytech-${person.slug}-${suffix}.${format}`;
 
   if (format === "png") {
-    const buffer = await QRCode.toBuffer(profileUrl, {
-      ...qrOptions,
-      type: "png",
-    });
+    const buffer =
+      variant === "raw"
+        ? await buildRawQrPng(profileUrl)
+        : await sharp(Buffer.from(await buildBrandedQrSvg(person, profileUrl)))
+            .png()
+            .toBuffer();
 
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
@@ -49,10 +48,10 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     });
   }
 
-  const svg = await QRCode.toString(profileUrl, {
-    ...qrOptions,
-    type: "svg",
-  });
+  const svg =
+    variant === "raw"
+      ? await buildRawQrSvg(profileUrl)
+      : await buildBrandedQrSvg(person, profileUrl);
 
   return new NextResponse(svg, {
     headers: {
