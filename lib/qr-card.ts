@@ -20,6 +20,40 @@ type Anchor =
   | "right top"
   | "right middle";
 
+const CUSTOM_TURKISH_GLYPHS = new Set(["ğ", "Ğ", "İ", "ı"]);
+
+function baseGlyph(char: string): string {
+  if (char === "ğ") return "g";
+  if (char === "Ğ") return "G";
+  if (char === "İ") return "I";
+  if (char === "ı") return "i";
+  return char;
+}
+
+function glyphWidth(char: string, fontSize: number, letterSpacing = 0): number {
+  const base = baseGlyph(char);
+  return textToSvg.getMetrics(base, {
+    fontSize,
+    letterSpacing,
+    anchor: "left top",
+  }).width;
+}
+
+function textWidth(text: string, fontSize: number, letterSpacing = 0): number {
+  if (![...text].some((char) => CUSTOM_TURKISH_GLYPHS.has(char))) {
+    return textToSvg.getMetrics(text, {
+      fontSize,
+      letterSpacing,
+      anchor: "left top",
+    }).width;
+  }
+
+  return [...text].reduce(
+    (total, char) => total + glyphWidth(char, fontSize, letterSpacing),
+    0,
+  );
+}
+
 function pathText(
   text: string,
   x: number,
@@ -29,15 +63,37 @@ function pathText(
   anchor: Anchor = "left top",
   letterSpacing = 0,
 ): string {
-  // IPA Gothic handles most Turkish Latin glyphs well, but its ğ/Ğ outline
-  // is not reliable in our server-side SVG pipeline. Compose those two
-  // characters from g/G + a vector breve so exports stay font-independent.
-  if ((text.includes("ğ") || text.includes("Ğ")) && anchor === "left top") {
-    let cursor = x;
-    const parts: string[] = [];
+  const hasCustomGlyph = [...text].some((char) =>
+    CUSTOM_TURKISH_GLYPHS.has(char),
+  );
 
-    for (const char of text) {
-      const base = char === "ğ" ? "g" : char === "Ğ" ? "G" : char;
+  if (!hasCustomGlyph || anchor !== "left top") {
+    return textToSvg.getPath(text, {
+      x,
+      y,
+      fontSize,
+      anchor,
+      letterSpacing,
+      attributes: { fill },
+    });
+  }
+
+  let cursor = x;
+  const parts: string[] = [];
+
+  for (const char of text) {
+    const base = baseGlyph(char);
+    const width = glyphWidth(char, fontSize, letterSpacing);
+
+    if (char === "ı") {
+      const stemWidth = Math.max(2.2, fontSize * 0.085);
+      const stemHeight = fontSize * 0.53;
+      const stemX = cursor + width * 0.5 - stemWidth * 0.5;
+      const stemY = y + fontSize * 0.22;
+      parts.push(
+        `<rect x="${stemX.toFixed(2)}" y="${stemY.toFixed(2)}" width="${stemWidth.toFixed(2)}" height="${stemHeight.toFixed(2)}" rx="${Math.max(1, stemWidth * 0.45).toFixed(2)}" fill="${fill}"/>`,
+      );
+    } else {
       parts.push(
         textToSvg.getPath(base, {
           x: cursor,
@@ -48,39 +104,30 @@ function pathText(
           attributes: { fill },
         }),
       );
-
-      const width = textWidth(base, fontSize, letterSpacing);
-      if (char === "ğ" || char === "Ğ") {
-        const cx = cursor + width * 0.5;
-        const breveWidth = Math.max(12, fontSize * 0.24);
-        const breveY = y + Math.max(1, fontSize * 0.025);
-        parts.push(
-          `<path d="M ${(cx - breveWidth).toFixed(2)} ${breveY.toFixed(2)} Q ${cx.toFixed(2)} ${(breveY + fontSize * 0.12).toFixed(2)} ${(cx + breveWidth).toFixed(2)} ${breveY.toFixed(2)}" fill="none" stroke="${fill}" stroke-width="${Math.max(3, fontSize * 0.055).toFixed(2)}" stroke-linecap="round"/>`,
-        );
-      }
-
-      cursor += width;
     }
 
-    return parts.join("");
+    if (char === "ğ" || char === "Ğ") {
+      const cx = cursor + width * 0.5;
+      const breveWidth = Math.max(12, fontSize * 0.24);
+      const breveY = y + Math.max(1, fontSize * 0.025);
+      parts.push(
+        `<path d="M ${(cx - breveWidth).toFixed(2)} ${breveY.toFixed(2)} Q ${cx.toFixed(2)} ${(breveY + fontSize * 0.12).toFixed(2)} ${(cx + breveWidth).toFixed(2)} ${breveY.toFixed(2)}" fill="none" stroke="${fill}" stroke-width="${Math.max(3, fontSize * 0.055).toFixed(2)}" stroke-linecap="round"/>`,
+      );
+    }
+
+    if (char === "İ") {
+      const cx = cursor + width * 0.5;
+      const radius = Math.max(2.4, fontSize * 0.055);
+      const cy = y - fontSize * 0.055;
+      parts.push(
+        `<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${radius.toFixed(2)}" fill="${fill}"/>`,
+      );
+    }
+
+    cursor += width;
   }
 
-  return textToSvg.getPath(text, {
-    x,
-    y,
-    fontSize,
-    anchor,
-    letterSpacing,
-    attributes: { fill },
-  });
-}
-
-function textWidth(text: string, fontSize: number, letterSpacing = 0): number {
-  return textToSvg.getMetrics(text, {
-    fontSize,
-    letterSpacing,
-    anchor: "left top",
-  }).width;
+  return parts.join("");
 }
 
 function fitFontSize(
