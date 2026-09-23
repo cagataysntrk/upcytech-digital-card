@@ -51,7 +51,7 @@ export default async function QrDisplayPage({ params }: PageProps) {
       </section>
 
       <footer className="qr-display-actions">
-        <span className="mono-label">1080 × 1440 / 3:4</span>
+        <span className="mono-label">1080 × 1920 / 9:16</span>
         <div>
           <a href={`/api/qr/${person.slug}?format=png&download=1`}>PNG indir</a>
           <a href={`/api/qr/${person.slug}?format=svg&download=1`}>SVG indir</a>
