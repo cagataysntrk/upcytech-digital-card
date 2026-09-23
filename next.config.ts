@@ -10,6 +10,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/api/qr/[slug]": [
+      "./node_modules/text-to-svg/fonts/ipag.ttf",
+      "./public/upcytech-mark-official.png",
+    ],
+  },
   async headers() {
     return [
       {
