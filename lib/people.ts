@@ -79,7 +79,12 @@ const people: PersonDefinition[] = [
     summary: "İş geliştirme ve müşteri ilişkilerinden sorumludur.",
     phoneEnv: "UPCY_CONTACT_ENES_PHONE",
     emailEnv: "UPCY_CONTACT_ENES_EMAIL",
-    socialEnvs: commonSocialEnvs("ENES"),
+    socials: [
+      { kind: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/in/enesteve" },
+    ],
+    socialEnvs: [
+      { kind: "instagram", label: "Instagram", env: "UPCY_CONTACT_ENES_INSTAGRAM" },
+    ],
   },
   {
     slug: "hulusi",
