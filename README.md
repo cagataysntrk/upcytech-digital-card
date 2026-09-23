@@ -19,6 +19,7 @@ Profil ekranında:
 - tek dokunuşla `.vcf` kişi kartı açılır,
 - telefon ve e-posta native uygulamaya yönlenir,
 - UpcyTech web sitesi ve LinkedIn bağlantıları bulunur,
+- doğrulanmış kişisel sosyal profiller gösterilir; diğerleri deployment değişkenleriyle eklenebilir,
 - cihaz destekliyorsa native paylaşım paneli açılır,
 - aynı kartın baskıya uygun SVG ve yüksek çözünürlüklü PNG QR'ı indirilebilir.
 
@@ -28,6 +29,7 @@ Profil ekranında:
 - TypeScript
 - Vercel
 - `qrcode` ile server-side SVG/PNG üretimi
+- production health endpoint ve GitHub Actions smoke testleri
 - vCard 3.0
 - Veritabanı yok
 - Admin paneli yok
@@ -56,6 +58,9 @@ npm run build
 
 ## Vercel yayını
 
+Ayrıntılı production ve cihaz kabul listesi için `docs/DEPLOYMENT.md` dosyasını kullanın.
+
+
 1. Bu repository'yi Vercel'e import edin.
 2. Framework preset: Next.js.
 3. `NEXT_PUBLIC_SITE_URL` değerini production domain ile tanımlayın:
@@ -76,6 +81,8 @@ npm run build
 ```text
 UPCY_CONTACT_<KEY>_PHONE
 UPCY_CONTACT_<KEY>_EMAIL
+UPCY_CONTACT_<KEY>_LINKEDIN
+UPCY_CONTACT_<KEY>_INSTAGRAM
 ```
 
 Yeni slug otomatik olarak profil, vCard ve QR endpoint'lerinde kullanılabilir.
@@ -88,6 +95,7 @@ Yeni slug otomatik olarak profil, vCard ve QR endpoint'lerinde kullanılabilir.
 /api/qr/<slug>?format=svg            QR SVG
 /api/qr/<slug>?format=png            QR PNG
 /api/qr/<slug>?format=png&download=1 İndirilebilir QR
+/api/health                         Deployment sağlık kontrolü
 ```
 
 ## Güvenilir QR üretimi
@@ -96,4 +104,4 @@ QR çıktıları yüksek hata düzeltme seviyesi (`H`), yeterli quiet-zone ve y�
 
 ## Mevcut ekip verisinin kaynağı
 
-İsimler ve görevler UpcyTech'in kamusal ekip sayfasındaki güncel şirket tanımlarına göre başlangıç verisi olarak eklenmiştir. Telefon, e-posta ve kişisel sosyal hesaplar doğrulanmadan eklenmez.
+İsimler, görevler ve şirket adresi UpcyTech'in kamusal şirket sayfalarındaki güncel tanımlara göre eklenmiştir. Doğrudan doğrulanabilen bazı kişisel LinkedIn/GitHub profilleri başlangıç verisine alınmıştır. Telefon, e-posta ve doğrulanamayan sosyal hesaplar environment variable olarak kalır.
