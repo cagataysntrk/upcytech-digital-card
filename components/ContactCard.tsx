@@ -1,6 +1,7 @@
+import { BrandLogo } from "@/components/BrandLogo";
+import { ShareButton } from "@/components/ShareButton";
 import { company, type Person } from "@/lib/people";
 import { getProfileUrl } from "@/lib/site-url";
-import { ShareButton } from "@/components/ShareButton";
 
 type Props = {
   person: Person;
@@ -33,7 +34,7 @@ export function ContactCard({ person }: Props) {
     <main className="page-shell">
       <section className="contact-card" aria-labelledby="person-name">
         <header className="brand-row">
-          <img src="/upcytech-logo.svg" alt="UpcyTech" className="brand-logo" />
+          <BrandLogo />
           <span className="verified-pill">
             <span className="verified-dot" />
             Dijital Kart
