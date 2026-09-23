@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-labelledby="title">
-  <title id="title">UpcyTech</title>
-  <g fill="none" fill-rule="evenodd">
-    <path d="M20 22h30v46c0 15 7 23 21 23s21-8 21-23V22h30v48c0 30-20 48-51 48S20 100 20 70V22Z" fill="#0B67E6"/>
-    <path d="M45 47h51v22H45z" fill="#08111E"/>
-    <text x="146" y="82" fill="#08111E" font-family="Arial,Helvetica,sans-serif" font-size="58" font-weight="800" letter-spacing="-2">UPCYTECH</text>
-  </g>
-</svg>
