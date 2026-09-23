@@ -29,3 +29,29 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_SITE_URL: https://card.upcytech.com
+
+      - name: Start production server
+        run: |
+          NEXT_PUBLIC_SITE_URL=https://card.upcytech.com npm start > /tmp/upcy-card.log 2>&1 &
+          echo $! > /tmp/upcy-card.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000/api/health >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/upcy-card.log
+          exit 1
+
+      - name: Smoke test profile, vCard and QR
+        run: |
+          curl -fsS http://127.0.0.1:3000/cagatay | grep -q "Cevat Çağatay Şentürk"
+          curl -fsS http://127.0.0.1:3000/api/contact/cagatay | grep -q "BEGIN:VCARD"
+          curl -fsS "http://127.0.0.1:3000/api/qr/cagatay?format=svg" | grep -q "<svg"
+
+      - name: Stop production server
+        if: always()
+        run: |
+          if [ -f /tmp/upcy-card.pid ]; then
+            kill "$(cat /tmp/upcy-card.pid)" || true
+          fi
