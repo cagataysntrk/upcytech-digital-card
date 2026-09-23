@@ -12,8 +12,8 @@ export const metadata: Metadata = {
     follow: false,
   },
   icons: {
-    icon: "/upcytech-mark.svg",
-    apple: "/upcytech-mark.svg",
+    icon: "/upcytech-mark-official.png",
+    apple: "/upcytech-mark-official.png",
   },
 };
 
