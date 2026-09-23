@@ -70,7 +70,7 @@ test("branded QR card is screen-ready and downloadable", async ({ page }, testIn
   expect(svgResponse.ok()).toBeTruthy();
   const svg = await svgResponse.text();
   expect(svg).toContain('width="1080"');
-  expect(svg).toContain('height="1440"');
+  expect(svg).toContain('height="1920"');
   expect(svg).toContain("SCAN TO CONNECT");
   expect(svg).toContain("card.upcytech.com/cagatay");
 
