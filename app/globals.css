@@ -626,7 +626,7 @@ button {
   width: 100%;
   height: auto;
   display: block;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 9 / 16;
 }
 
 .identity-footer {
@@ -1074,7 +1074,7 @@ button {
   max-width: min(92vw, 540px);
   height: auto;
   max-height: calc(100svh - 170px);
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 9 / 16;
   border-radius: clamp(18px, 2.2vw, 30px);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
 }
