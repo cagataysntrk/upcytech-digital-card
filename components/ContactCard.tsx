@@ -213,22 +213,19 @@ export function ContactCard({ person }: Props) {
               değişse de kodu yeniden basmanız gerekmez.
             </p>
             <div className="qr-actions">
+              <a href={`/qr/${person.slug}`}>Tam ekran</a>
               <a href={`/api/qr/${person.slug}?format=png&download=1`}>PNG</a>
               <a href={`/api/qr/${person.slug}?format=svg&download=1`}>SVG</a>
               <span>{profileUrl.replace("https://", "")}</span>
             </div>
           </div>
 
-          <div className="qr-object">
+          <a className="qr-object" href={`/qr/${person.slug}`} aria-label="QR kartını tam ekran aç">
             <img
               src={`/api/qr/${person.slug}?format=svg`}
-              alt={`${person.displayName} dijital kart QR kodu`}
+              alt={`${person.displayName} UpcyTech dijital kimlik QR kartı`}
             />
-            <div className="qr-object-footer">
-              <span>{person.initials}</span>
-              <span>UPCYTECH ID</span>
-            </div>
-          </div>
+          </a>
         </section>
 
         <footer className="identity-footer">
