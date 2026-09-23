@@ -1,16 +1,69 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import QRCode from "qrcode";
 import type { Person } from "@/lib/people";
+
+const TextToSVG = require("text-to-svg");
+const textToSvg = TextToSVG.loadSync();
 
 const CARD_WIDTH = 1080;
 const CARD_HEIGHT = 1920;
 
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+type Anchor =
+  | "left top"
+  | "left middle"
+  | "left baseline"
+  | "center top"
+  | "center middle"
+  | "right top"
+  | "right middle";
+
+function pathText(
+  text: string,
+  x: number,
+  y: number,
+  fontSize: number,
+  fill: string,
+  anchor: Anchor = "left top",
+  letterSpacing = 0,
+): string {
+  return textToSvg.getPath(text, {
+    x,
+    y,
+    fontSize,
+    anchor,
+    letterSpacing,
+    attributes: { fill },
+  });
+}
+
+function textWidth(text: string, fontSize: number, letterSpacing = 0): number {
+  return textToSvg.getMetrics(text, {
+    fontSize,
+    letterSpacing,
+    anchor: "left top",
+  }).width;
+}
+
+function fitFontSize(
+  text: string,
+  maxWidth: number,
+  preferred: number,
+  minimum: number,
+  letterSpacing = 0,
+): number {
+  let size = preferred;
+  while (size > minimum && textWidth(text, size, letterSpacing) > maxWidth) {
+    size -= 1;
+  }
+  return size;
+}
+
+function officialMarkDataUri(): string {
+  const mark = readFileSync(
+    join(process.cwd(), "public", "upcytech-mark-official.png"),
+  );
+  return `data:image/png;base64,${mark.toString("base64")}`;
 }
 
 function extractQrSvg(svg: string): { viewBox: string; body: string } {
@@ -72,25 +125,96 @@ export async function buildBrandedQrSvg(
   const raw = await buildRawQrSvg(profileUrl);
   const { viewBox, body } = extractQrSvg(raw);
   const [, , qrViewW, qrViewH] = viewBox.split(/\s+/).map(Number);
-  const qrBox = 660;
+  const qrBox = 690;
   const scale = qrBox / Math.max(qrViewW || 41, qrViewH || 41);
   const nameLines = splitName(person.displayName);
-  const safeUrl = escapeXml(profileUrl.replace("https://", ""));
-  const safeRole = escapeXml(person.role);
+  const profileLabel = profileUrl.replace("https://", "");
+  const mark = officialMarkDataUri();
 
-  const nameText =
-    nameLines.length === 1
-      ? `<text x="96" y="270" fill="#F4F5F7" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" letter-spacing="-1.8">${escapeXml(nameLines[0])}</text>`
-      : `
-        <text x="96" y="242" fill="#F4F5F7" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700" letter-spacing="-1.6">${escapeXml(nameLines[0])}</text>
-        <text x="96" y="304" fill="#F4F5F7" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700" letter-spacing="-1.6">${escapeXml(nameLines[1])}</text>
-      `;
+  const wordmark = pathText("UpcyTech", 144, 86, 34, "#F4F5F7", "left top", -0.025);
+  const idLabel = pathText(
+    `DIGITAL ID / ${person.slug.toUpperCase()}`,
+    984,
+    90,
+    16,
+    "#858C95",
+    "right top",
+    0.12,
+  );
+
+  const identityLabel = pathText(
+    "UPCYTECH / DIGITAL IDENTITY",
+    96,
+    214,
+    16,
+    "#737B86",
+    "left top",
+    0.11,
+  );
+
+  const namePaths = nameLines
+    .map((line, index) => {
+      const size = fitFontSize(line, 888, nameLines.length === 1 ? 70 : 61, 44, -0.025);
+      return pathText(
+        line,
+        96,
+        nameLines.length === 1 ? 258 : 252 + index * 72,
+        size,
+        "#F4F5F7",
+        "left top",
+        -0.025,
+      );
+    })
+    .join("\n");
+
+  const roleY = nameLines.length === 1 ? 348 : 404;
+  const roleSize = fitFontSize(person.role, 840, 25, 19);
+  const rolePath = pathText(person.role, 96, roleY, roleSize, "#A0A6AE");
+
+  const scanLabel = pathText(
+    "SCAN TO CONNECT",
+    126,
+    1524,
+    17,
+    "#838B95",
+    "left top",
+    0.11,
+  );
+  const urlSize = fitFontSize(profileLabel, 690, 25, 19, -0.01);
+  const urlPath = pathText(
+    profileLabel,
+    126,
+    1572,
+    urlSize,
+    "#F0F2F5",
+    "left top",
+    -0.01,
+  );
+
+  const footerLeft = pathText(
+    "UPCYTECH / DIGITAL IDENTITY SYSTEM",
+    96,
+    1784,
+    14,
+    "#636B75",
+    "left top",
+    0.09,
+  );
+  const footerRight = pathText(
+    "CARD.UPCYTECH.COM",
+    984,
+    1784,
+    14,
+    "#636B75",
+    "right top",
+    0.09,
+  );
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${CARD_WIDTH}" height="${CARD_HEIGHT}" viewBox="0 0 ${CARD_WIDTH} ${CARD_HEIGHT}">
   <defs>
     <pattern id="grid" width="72" height="72" patternUnits="userSpaceOnUse">
-      <path d="M 72 0 L 0 0 0 72" fill="none" stroke="#FFFFFF" stroke-opacity="0.035" stroke-width="1"/>
+      <path d="M 72 0 L 0 0 0 72" fill="none" stroke="#FFFFFF" stroke-opacity="0.032" stroke-width="1"/>
     </pattern>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="24" stdDeviation="34" flood-color="#000000" flood-opacity="0.24"/>
@@ -99,34 +223,41 @@ export async function buildBrandedQrSvg(
 
   <rect width="1080" height="1920" fill="#111214"/>
   <rect width="1080" height="1920" fill="url(#grid)"/>
-  <rect x="34" y="34" width="1012" height="1852" rx="42" fill="none" stroke="#FFFFFF" stroke-opacity="0.10"/>
+  <rect x="34" y="34" width="1012" height="1852" rx="44" fill="none" stroke="#FFFFFF" stroke-opacity="0.10"/>
 
-  <g transform="translate(96 92)">
-    <circle cx="7" cy="7" r="7" fill="#0867E8"/>
-    <text x="28" y="15" fill="#F4F5F7" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="-0.6">UpcyTech</text>
+  <g>
+    <image href="${mark}" x="96" y="77" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>
+    ${wordmark}
+    ${idLabel}
   </g>
 
-  <text x="984" y="110" text-anchor="end" fill="#8C929A" font-family="Courier New, monospace" font-size="16" font-weight="700" letter-spacing="2.4">DIGITAL ID / ${escapeXml(person.slug.toUpperCase())}</text>
+  <line x1="96" y1="160" x2="984" y2="160" stroke="#FFFFFF" stroke-opacity="0.09"/>
 
-  ${nameText}
-  <text x="96" y="${nameLines.length === 1 ? 314 : 350}" fill="#9EA4AD" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400">${safeRole}</text>
+  ${identityLabel}
+  ${namePaths}
+  ${rolePath}
 
   <g filter="url(#shadow)">
-    <rect x="126" y="516" width="828" height="828" rx="44" fill="#FBFBFA"/>
+    <rect x="100" y="500" width="880" height="880" rx="46" fill="#FAFAF9"/>
   </g>
-  <rect x="150" y="540" width="780" height="780" rx="32" fill="#FFFFFF" stroke="#E5E7EA" stroke-width="2"/>
+  <rect x="122" y="522" width="836" height="836" rx="34" fill="#FFFFFF" stroke="#E4E7EA" stroke-width="2"/>
 
-  <g transform="translate(210 600) scale(${scale})">
+  <g transform="translate(195 595) scale(${scale})">
     ${body}
   </g>
 
-  <g transform="translate(96 1642)">
-    <rect x="0" y="0" width="4" height="52" rx="2" fill="#0867E8"/>
-    <text x="24" y="17" fill="#7F8791" font-family="Courier New, monospace" font-size="15" font-weight="700" letter-spacing="2">SCAN TO CONNECT</text>
-    <text x="24" y="46" fill="#E1E4E8" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="500">${safeUrl}</text>
+  <g>
+    <rect x="96" y="1468" width="888" height="174" rx="26" fill="#FFFFFF" fill-opacity="0.028" stroke="#FFFFFF" stroke-opacity="0.09"/>
+    <rect x="96" y="1468" width="5" height="174" rx="2.5" fill="#0867E8"/>
+    ${scanLabel}
+    ${urlPath}
+    <circle cx="930" cy="1555" r="22" fill="#0867E8" fill-opacity="0.13"/>
+    <circle cx="930" cy="1555" r="6" fill="#0867E8"/>
   </g>
 
-  <text x="984" y="1814" text-anchor="end" fill="#686F79" font-family="Courier New, monospace" font-size="14" letter-spacing="1.5">UPCYTECH / IDENTITY SYSTEM</text>
+  <line x1="96" y1="1742" x2="984" y2="1742" stroke="#FFFFFF" stroke-opacity="0.08"/>
+  ${footerLeft}
+  ${footerRight}
 </svg>`.trim();
 }
 
