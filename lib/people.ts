@@ -6,6 +6,12 @@ export type SocialLink = {
   url: string;
 };
 
+export type SocialEnvDefinition = {
+  kind: SocialKind;
+  label: string;
+  env: string;
+};
+
 export type PersonDefinition = {
   slug: string;
   displayName: string;
@@ -17,9 +23,10 @@ export type PersonDefinition = {
   phoneEnv: string;
   emailEnv: string;
   socials?: SocialLink[];
+  socialEnvs?: SocialEnvDefinition[];
 };
 
-export type Person = PersonDefinition & {
+export type Person = Omit<PersonDefinition, "socialEnvs"> & {
   phone?: string;
   email?: string;
 };
@@ -29,7 +36,19 @@ export const company = {
   website: "https://upcytech.com/tr",
   linkedin: "https://www.linkedin.com/company/upcytech/",
   location: "İstanbul, Türkiye",
+  address: {
+    street: "Reşitpaşa Mah. Katar Cad. İTÜ Tasarım ve Prototip Merkezi Binası No: 2/41 İç Kapı No: 19",
+    postalCode: "34467",
+    city: "Sarıyer",
+    region: "İstanbul",
+    country: "Türkiye",
+  },
 };
+
+const commonSocialEnvs = (key: string): SocialEnvDefinition[] => [
+  { kind: "linkedin", label: "LinkedIn", env: `UPCY_CONTACT_${key}_LINKEDIN` },
+  { kind: "instagram", label: "Instagram", env: `UPCY_CONTACT_${key}_INSTAGRAM` },
+];
 
 const people: PersonDefinition[] = [
   {
@@ -42,6 +61,12 @@ const people: PersonDefinition[] = [
     summary: "Ürün yönetimi ve ürün kararlarından sorumludur.",
     phoneEnv: "UPCY_CONTACT_CAGATAY_PHONE",
     emailEnv: "UPCY_CONTACT_CAGATAY_EMAIL",
+    socials: [
+      { kind: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/in/cagataysntrkk" },
+    ],
+    socialEnvs: [
+      { kind: "instagram", label: "Instagram", env: "UPCY_CONTACT_CAGATAY_INSTAGRAM" },
+    ],
   },
   {
     slug: "enes",
@@ -53,6 +78,7 @@ const people: PersonDefinition[] = [
     summary: "İş geliştirme ve müşteri ilişkilerinden sorumludur.",
     phoneEnv: "UPCY_CONTACT_ENES_PHONE",
     emailEnv: "UPCY_CONTACT_ENES_EMAIL",
+    socialEnvs: commonSocialEnvs("ENES"),
   },
   {
     slug: "hulusi",
@@ -64,6 +90,16 @@ const people: PersonDefinition[] = [
     summary: "Finans süreçlerinden sorumludur.",
     phoneEnv: "UPCY_CONTACT_HULUSI_PHONE",
     emailEnv: "UPCY_CONTACT_HULUSI_EMAIL",
+    socials: [
+      {
+        kind: "linkedin",
+        label: "LinkedIn",
+        url: "https://www.linkedin.com/in/muhammed-hulusi-aydo%C4%9Fan-bb7678300",
+      },
+    ],
+    socialEnvs: [
+      { kind: "instagram", label: "Instagram", env: "UPCY_CONTACT_HULUSI_INSTAGRAM" },
+    ],
   },
   {
     slug: "harun",
@@ -75,6 +111,7 @@ const people: PersonDefinition[] = [
     summary: "Teknoloji yönü ve teknik kararlardan sorumludur.",
     phoneEnv: "UPCY_CONTACT_HARUN_PHONE",
     emailEnv: "UPCY_CONTACT_HARUN_EMAIL",
+    socialEnvs: commonSocialEnvs("HARUN"),
   },
   {
     slug: "hamza",
@@ -86,6 +123,13 @@ const people: PersonDefinition[] = [
     summary: "Yazılım geliştirme ve teknik uygulamadan sorumludur.",
     phoneEnv: "UPCY_CONTACT_HAMZA_PHONE",
     emailEnv: "UPCY_CONTACT_HAMZA_EMAIL",
+    socials: [
+      { kind: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/in/yhcelebi" },
+      { kind: "github", label: "GitHub", url: "https://github.com/yhcelebi" },
+    ],
+    socialEnvs: [
+      { kind: "instagram", label: "Instagram", env: "UPCY_CONTACT_HAMZA_INSTAGRAM" },
+    ],
   },
 ];
 
@@ -101,10 +145,19 @@ export function getPerson(slug: string): Person | undefined {
 
   const phone = process.env[definition.phoneEnv]?.trim();
   const email = process.env[definition.emailEnv]?.trim();
+  const envSocials = (definition.socialEnvs ?? [])
+    .map((social): SocialLink | null => {
+      const url = process.env[social.env]?.trim();
+      return url ? { kind: social.kind, label: social.label, url } : null;
+    })
+    .filter((social): social is SocialLink => social !== null);
+
+  const { socialEnvs: _socialEnvs, ...rest } = definition;
 
   return {
-    ...definition,
+    ...rest,
     phone: phone || undefined,
     email: email || undefined,
+    socials: [...(definition.socials ?? []), ...envSocials],
   };
 }
