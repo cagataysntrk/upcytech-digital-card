@@ -46,8 +46,9 @@ export default function Home() {
             </div>
             <div className="dima-wordmark">dima<span>.</span></div>
             <p>
-              Optimizasyon ve karar masası. Şirketin operasyonel beyni gibi çalışır;
-              izler, denetler, fark eder ve karar için raporlar.
+              Dima, optimizasyon ve karar masasıdır. Şirketin otonom beyni gibi çalışır;
+              veriyi izler, denetler, sapmaları ve fırsatları fark eder, optimizasyon
+              önerileri verir ve karar için raporlar.
             </p>
           </aside>
         </section>

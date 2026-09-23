@@ -12,7 +12,7 @@ test("directory is responsive and visually stable", async ({ page }, testInfo) =
   await expect(page.getByRole("heading", { name: "Kurucu ekibin dijital kimlikleri." })).toBeVisible();
   await expect(page.locator(".brand-wordmark")).toHaveText("UpcyTech");
   await expect(page.locator(".team-monogram")).toHaveCount(0);
-  await expect(page.getByText("Optimizasyon ve karar masası.", { exact: false })).toBeVisible();
+  await expect(page.getByText("Dima, optimizasyon ve karar masasıdır.", { exact: false })).toBeVisible();
 
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   const viewport = page.viewportSize();
@@ -33,7 +33,7 @@ test("profile keeps identity, actions, contact list and QR in one coherent flow"
   await expect(page.getByRole("link", { name: /Rehbere ekle/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: "İletişim" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Tek QR, güncel kimlik." })).toBeVisible();
-  await expect(page.getByText("şirketin operasyonel beyni", { exact: false })).toBeVisible();
+  await expect(page.getByText("Şirketin otonom beyni", { exact: false })).toBeVisible();
 
   const overflow = await page.evaluate(() => ({
     scroll: document.documentElement.scrollWidth,
