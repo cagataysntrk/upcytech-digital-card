@@ -1,4 +1,5 @@
 import { BrandLogo } from "@/components/BrandLogo";
+import { Icon, type IconName } from "@/components/Icon";
 import { ShareButton } from "@/components/ShareButton";
 import { company, type Person } from "@/lib/people";
 import { getProfileUrl } from "@/lib/site-url";
@@ -7,124 +8,240 @@ type Props = {
   person: Person;
 };
 
+type ContactAction = {
+  label: string;
+  detail: string;
+  href: string;
+  icon: IconName;
+  meta?: string;
+};
+
 function normalizePhoneHref(phone: string): string {
   return phone.replace(/[^+\d]/g, "");
 }
 
+function socialMeta(kind: string): string {
+  if (kind === "linkedin") return "Kişisel profil";
+  if (kind === "instagram") return "Instagram";
+  if (kind === "github") return "GitHub";
+  return "Web";
+}
+
+function socialIcon(kind: string): IconName {
+  if (kind === "linkedin") return "linkedin";
+  if (kind === "instagram") return "instagram";
+  if (kind === "github") return "github";
+  return "globe";
+}
+
 export function ContactCard({ person }: Props) {
   const profileUrl = getProfileUrl(person.slug);
-  const actions = [
-    person.phone
-      ? { label: "Ara", detail: person.phone, href: `tel:${normalizePhoneHref(person.phone)}`, icon: "☎" }
-      : null,
-    person.email
-      ? { label: "E-posta", detail: person.email, href: `mailto:${person.email}`, icon: "✉" }
-      : null,
-    { label: "UpcyTech", detail: "Web sitesi", href: company.website, icon: "↗" },
-    { label: "LinkedIn", detail: "UpcyTech", href: company.linkedin, icon: "in" },
-    company.instagram
-      ? { label: "Instagram", detail: "UpcyTech", href: company.instagram, icon: "◎" }
-      : null,
+  const actions: ContactAction[] = [
+    ...(person.phone
+      ? [{
+          label: "Telefon",
+          detail: person.phone,
+          href: `tel:${normalizePhoneHref(person.phone)}`,
+          icon: "phone" as const,
+          meta: "Ara",
+        }]
+      : []),
+    ...(person.email
+      ? [{
+          label: "E-posta",
+          detail: person.email,
+          href: `mailto:${person.email}`,
+          icon: "mail" as const,
+          meta: "Yaz",
+        }]
+      : []),
+    {
+      label: "UpcyTech",
+      detail: "upcytech.com",
+      href: company.website,
+      icon: "globe",
+      meta: "Şirket",
+    },
+    {
+      label: "LinkedIn",
+      detail: "UpcyTech",
+      href: company.linkedin,
+      icon: "linkedin",
+      meta: "Şirket",
+    },
+    ...(company.instagram
+      ? [{
+          label: "Instagram",
+          detail: "UpcyTech",
+          href: company.instagram,
+          icon: "instagram" as const,
+          meta: "Şirket",
+        }]
+      : []),
     ...(person.socials ?? []).map((social) => ({
       label: social.label,
-      detail:
-        social.kind === "instagram"
-          ? "Instagram"
-          : social.kind === "linkedin"
-            ? "Kişisel profil"
-            : social.kind === "github"
-              ? "GitHub"
-              : "Web",
+      detail: social.kind === "github" ? social.url.replace("https://github.com/", "@") : socialMeta(social.kind),
       href: social.url,
-      icon: social.kind === "linkedin" ? "in" : social.kind === "instagram" ? "◎" : social.kind === "github" ? "⌘" : "↗",
+      icon: socialIcon(social.kind),
+      meta: social.kind === "linkedin" ? "Kişisel" : social.kind === "instagram" ? "Kişisel" : undefined,
     })),
-  ].filter(Boolean) as Array<{ label: string; detail: string; href: string; icon: string }>;
+  ];
 
   const showSetupNote =
     process.env.NODE_ENV !== "production" && (!person.phone || !person.email);
 
   return (
-    <main className="page-shell">
-      <section className="contact-card" aria-labelledby="person-name">
-        <header className="brand-row">
-          <BrandLogo />
-          <span className="verified-pill">
-            <span className="verified-dot" />
-            Dijital Kart
-          </span>
+    <main className="profile-page">
+      <div className="ambient-grid" aria-hidden="true" />
+
+      <section className="identity-shell" aria-labelledby="person-name">
+        <header className="identity-nav">
+          <a className="brand-link" href={company.website} target="_blank" rel="noreferrer">
+            <BrandLogo />
+          </a>
+          <div className="identity-nav-meta">
+            <span className="mono-label">DIGITAL ID / {person.slug.toUpperCase()}</span>
+            <a className="team-return" href="/">
+              Ekip
+              <Icon name="arrow" className="nav-arrow" />
+            </a>
+          </div>
         </header>
 
-        <div className="identity-block">
-          <div className="avatar" aria-hidden="true">
-            <span>{person.initials}</span>
-          </div>
+        <div className="hero-grid">
+          <section className="identity-hero">
+            <div className="identity-node" aria-hidden="true">
+              <span className="identity-node-index">01</span>
+              <span className="identity-node-initials">{person.initials}</span>
+              <span className="identity-node-dot" />
+            </div>
 
-          <div className="identity-copy">
-            <p className="eyebrow">{company.name}</p>
-            <h1 id="person-name">{person.displayName}</h1>
-            <p className="role">{person.role}</p>
-            <p className="summary">{person.summary}</p>
-          </div>
-        </div>
+            <div className="identity-copy">
+              <div className="identity-kicker">
+                <span className="status-dot" />
+                <span>{company.name}</span>
+                <span className="kicker-separator">/</span>
+                <span>{company.location}</span>
+              </div>
+              <h1 id="person-name">{person.displayName}</h1>
+              <p className="identity-role">{person.role}</p>
+              <p className="identity-summary">{person.summary}</p>
+            </div>
 
-        <div className="primary-actions">
-          <a className="primary-button" href={`/api/contact/${person.slug}`}>
-            <span className="button-icon" aria-hidden="true">＋</span>
-            Rehbere Ekle
-          </a>
-          <ShareButton title={`${person.displayName} · ${company.name}`} url={profileUrl} />
-        </div>
-
-        <div className="action-grid" aria-label="İletişim bağlantıları">
-          {actions.map((action) => {
-            const external = action.href.startsWith("http");
-            return (
-              <a
-                className="action-card"
-                href={action.href}
-                key={`${action.label}-${action.href}`}
-                target={external ? "_blank" : undefined}
-                rel={external ? "noreferrer" : undefined}
-              >
-                <span className="action-icon" aria-hidden="true">{action.icon}</span>
-                <span>
-                  <strong>{action.label}</strong>
-                  <small>{action.detail}</small>
-                </span>
+            <div className="identity-actions">
+              <a className="button button-primary" href={`/api/contact/${person.slug}`}>
+                <Icon name="plus" className="button-svg" />
+                Rehbere ekle
               </a>
-            );
-          })}
+              <ShareButton title={`${person.displayName} · ${company.name}`} url={profileUrl} />
+            </div>
+
+            <div className="protocol-row" aria-label="Kart özellikleri">
+              <span>vCard 3.0</span>
+              <span>iOS / Android</span>
+              <span>Kalıcı QR</span>
+            </div>
+          </section>
+
+          <aside className="dima-panel" aria-label="UpcyTech ana ürünü Dima">
+            <div className="panel-topline">
+              <span className="mono-label">MAIN PRODUCT</span>
+              <span className="panel-index">01</span>
+            </div>
+            <div className="dima-wordmark" aria-label="dima">
+              dima<span>.</span>
+            </div>
+            <p>
+              Şirket verisini doğal dille sorgulanabilir, kanıta bağlı ve denetlenebilir
+              analize dönüştüren iş analisti.
+            </p>
+            <a href={company.website} target="_blank" rel="noreferrer" className="panel-link">
+              UpcyTech&apos;i incele
+              <Icon name="arrow" className="panel-link-icon" />
+            </a>
+          </aside>
         </div>
 
         {showSetupNote ? (
           <p className="setup-note">
-            Geliştirme notu: telefon/e-posta eksik. Production'da bu not gösterilmez.
+            Geliştirme notu: telefon/e-posta eksik. Production&apos;da bu not gösterilmez.
           </p>
         ) : null}
 
-        <section className="qr-section" aria-labelledby="qr-title">
-          <div>
-            <p className="eyebrow">Paylaşılabilir QR</p>
-            <h2 id="qr-title">Bu kartı başka bir telefonda aç</h2>
-            <p>
-              QR sabit profil adresine gider. İletişim bilgileri değişse bile QR kodunu yeniden basmanız gerekmez.
-            </p>
-            <div className="download-row">
-              <a href={`/api/qr/${person.slug}?format=png&download=1`}>PNG indir</a>
-              <a href={`/api/qr/${person.slug}?format=svg&download=1`}>SVG indir</a>
+        <section className="contact-section" aria-labelledby="contact-title">
+          <div className="section-heading">
+            <div>
+              <span className="mono-label">CONTACT CHANNELS</span>
+              <h2 id="contact-title">İletişim</h2>
             </div>
+            <span className="section-count">{String(actions.length).padStart(2, "0")}</span>
           </div>
 
-          <div className="qr-frame">
-            <img src={`/api/qr/${person.slug}?format=svg`} alt={`${person.displayName} dijital kart QR kodu`} />
-            <span>{company.name}</span>
+          <div className="contact-table">
+            {actions.map((action, index) => {
+              const external = action.href.startsWith("http");
+              return (
+                <a
+                  className="contact-row"
+                  href={action.href}
+                  key={`${action.label}-${action.href}`}
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noreferrer" : undefined}
+                >
+                  <span className="contact-index">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="contact-icon">
+                    <Icon name={action.icon} />
+                  </span>
+                  <span className="contact-main">
+                    <strong>{action.label}</strong>
+                    <small>{action.detail}</small>
+                  </span>
+                  <span className="contact-meta">{action.meta ?? "Aç"}</span>
+                  <Icon name="arrow" className="contact-arrow" />
+                </a>
+              );
+            })}
           </div>
         </section>
 
-        <footer className="card-footer">
-          <span>{company.location}</span>
-          <span className="footer-separator">•</span>
-          <a href={company.website} target="_blank" rel="noreferrer">upcytech.com</a>
+        <section className="qr-module" aria-labelledby="qr-title">
+          <div className="qr-copy">
+            <div className="section-heading section-heading-inverse">
+              <div>
+                <span className="mono-label">STABLE ENDPOINT</span>
+                <h2 id="qr-title">Tek QR, güncel kimlik.</h2>
+              </div>
+              <Icon name="qr" className="qr-heading-icon" />
+            </div>
+            <p>
+              Bu QR kalıcı profil adresine bağlıdır. Telefon, e-posta veya sosyal hesaplar
+              değişse de kodu yeniden basmanız gerekmez.
+            </p>
+            <div className="qr-actions">
+              <a href={`/api/qr/${person.slug}?format=png&download=1`}>PNG</a>
+              <a href={`/api/qr/${person.slug}?format=svg&download=1`}>SVG</a>
+              <span>{profileUrl.replace("https://", "")}</span>
+            </div>
+          </div>
+
+          <div className="qr-object">
+            <img
+              src={`/api/qr/${person.slug}?format=svg`}
+              alt={`${person.displayName} dijital kart QR kodu`}
+            />
+            <div className="qr-object-footer">
+              <span>{person.initials}</span>
+              <span>UPCYTECH ID</span>
+            </div>
+          </div>
+        </section>
+
+        <footer className="identity-footer">
+          <span>UpcyTech / Digital Identity System</span>
+          <span className="footer-rule" />
+          <a href={company.website} target="_blank" rel="noreferrer">
+            upcytech.com
+          </a>
         </footer>
       </section>
     </main>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Icon } from "@/components/Icon";
 
 type Props = {
   title: string;
@@ -26,8 +27,8 @@ export function ShareButton({ title, url }: Props) {
   }
 
   return (
-    <button className="secondary-button" onClick={share} type="button">
-      <span className="button-icon" aria-hidden="true">↗</span>
+    <button className="button button-secondary" onClick={share} type="button">
+      <Icon name="share" className="button-svg" />
       {copied ? "Bağlantı kopyalandı" : "Kartı paylaş"}
     </button>
   );
