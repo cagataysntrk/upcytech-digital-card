@@ -91,3 +91,27 @@ test("branded QR card is screen-ready and downloadable", async ({ page }, testIn
     fullPage: true,
   });
 });
+
+
+for (const fixture of [
+  { slug: "enes", label: "Enes Özkan" },
+  { slug: "hamza", label: "Yusuf Hamza Çelebi" },
+]) {
+  test(`Turkish glyph regression: ${fixture.slug}`, async ({ page }, testInfo) => {
+    await page.goto(`/qr/${fixture.slug}`);
+    await expect(page.locator(".qr-display-card")).toBeVisible();
+
+    const svgResponse = await page.request.get(
+      `/api/qr/${fixture.slug}?format=svg`,
+    );
+    expect(svgResponse.ok()).toBeTruthy();
+    const svg = await svgResponse.text();
+    expect(svg).not.toContain("<text");
+    expect(svg).toContain("<path");
+
+    await page.screenshot({
+      path: `${output}/qr-card-${fixture.slug}-${testInfo.project.name}.png`,
+      fullPage: true,
+    });
+  });
+}
