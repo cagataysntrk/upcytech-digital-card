@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export default function NotFound() {
   return (
     <main className="directory-shell">
       <section className="empty-state">
-        <img src="/upcytech-logo.svg" alt="UpcyTech" className="brand-logo" />
+        <BrandLogo />
         <p className="eyebrow">404</p>
         <h1>Kart bulunamadı.</h1>
         <p>Bağlantıyı kontrol edin veya ekip kartlarına geri dönün.</p>
