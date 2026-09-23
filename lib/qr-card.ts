@@ -4,7 +4,9 @@ import QRCode from "qrcode";
 import type { Person } from "@/lib/people";
 
 const TextToSVG = require("text-to-svg");
-const textToSvg = TextToSVG.loadSync();
+const textToSvg = TextToSVG.loadSync(
+  join(process.cwd(), "node_modules", "text-to-svg", "fonts", "ipag.ttf"),
+);
 
 const CARD_WIDTH = 1080;
 const CARD_HEIGHT = 1920;
