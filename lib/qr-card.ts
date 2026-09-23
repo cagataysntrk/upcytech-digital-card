@@ -2,7 +2,7 @@ import QRCode from "qrcode";
 import type { Person } from "@/lib/people";
 
 const CARD_WIDTH = 1080;
-const CARD_HEIGHT = 1440;
+const CARD_HEIGHT = 1920;
 
 function escapeXml(value: string): string {
   return value
@@ -97,9 +97,9 @@ export async function buildBrandedQrSvg(
     </filter>
   </defs>
 
-  <rect width="1080" height="1440" fill="#111214"/>
-  <rect width="1080" height="1440" fill="url(#grid)"/>
-  <rect x="34" y="34" width="1012" height="1372" rx="42" fill="none" stroke="#FFFFFF" stroke-opacity="0.10"/>
+  <rect width="1080" height="1920" fill="#111214"/>
+  <rect width="1080" height="1920" fill="url(#grid)"/>
+  <rect x="34" y="34" width="1012" height="1852" rx="42" fill="none" stroke="#FFFFFF" stroke-opacity="0.10"/>
 
   <g transform="translate(96 92)">
     <circle cx="7" cy="7" r="7" fill="#0867E8"/>
@@ -112,21 +112,21 @@ export async function buildBrandedQrSvg(
   <text x="96" y="${nameLines.length === 1 ? 314 : 350}" fill="#9EA4AD" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400">${safeRole}</text>
 
   <g filter="url(#shadow)">
-    <rect x="126" y="418" width="828" height="828" rx="44" fill="#FBFBFA"/>
+    <rect x="126" y="516" width="828" height="828" rx="44" fill="#FBFBFA"/>
   </g>
-  <rect x="150" y="442" width="780" height="780" rx="32" fill="#FFFFFF" stroke="#E5E7EA" stroke-width="2"/>
+  <rect x="150" y="540" width="780" height="780" rx="32" fill="#FFFFFF" stroke="#E5E7EA" stroke-width="2"/>
 
-  <g transform="translate(210 502) scale(${scale})">
+  <g transform="translate(210 600) scale(${scale})">
     ${body}
   </g>
 
-  <g transform="translate(96 1310)">
+  <g transform="translate(96 1642)">
     <rect x="0" y="0" width="4" height="52" rx="2" fill="#0867E8"/>
     <text x="24" y="17" fill="#7F8791" font-family="Courier New, monospace" font-size="15" font-weight="700" letter-spacing="2">SCAN TO CONNECT</text>
     <text x="24" y="46" fill="#E1E4E8" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="500">${safeUrl}</text>
   </g>
 
-  <text x="984" y="1360" text-anchor="end" fill="#686F79" font-family="Courier New, monospace" font-size="14" letter-spacing="1.5">UPCYTECH / IDENTITY SYSTEM</text>
+  <text x="984" y="1814" text-anchor="end" fill="#686F79" font-family="Courier New, monospace" font-size="14" letter-spacing="1.5">UPCYTECH / IDENTITY SYSTEM</text>
 </svg>`.trim();
 }
 
