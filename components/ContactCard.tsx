@@ -146,8 +146,9 @@ export function ContactCard({ person }: Props) {
               dima<span>.</span>
             </div>
             <p>
-              Dima, optimizasyon ve karar masasıdır. Şirketin operasyonel beyni gibi
-              çalışır; veriyi izler, denetler, sapmaları fark eder ve karar için raporlar.
+              Dima, optimizasyon ve karar masasıdır. Şirketin otonom beyni gibi çalışır;
+              veriyi izler, denetler, sapmaları ve fırsatları fark eder, optimizasyon
+              önerileri verir ve karar için raporlar.
             </p>
             <a href={company.website} target="_blank" rel="noreferrer" className="panel-link">
               UpcyTech&apos;i incele
